@@ -1,0 +1,42 @@
+name: book_app_v2
+description: A comprehensive book app for mobile development final project.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  http: ^1.1.0
+  sqflite: ^2.3.0
+  shared_preferences: ^2.2.2
+  crypto: ^3.0.3
+  sensors_plus: ^4.0.2
+  flutter_local_notifications: ^17.2.1
+  permission_handler: ^11.0.1
+  image_picker: ^1.0.4
+  cached_network_image: ^3.3.0
+  intl: ^0.18.1
+  url_launcher: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/fonts/
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
