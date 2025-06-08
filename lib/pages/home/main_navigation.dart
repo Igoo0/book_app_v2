@@ -5,9 +5,9 @@ import '../../services/books_api_service.dart';
 import '../books/home_screen.dart';
 import '../books/search_screen.dart';
 import '../books/favorites_screen.dart';
+import '../books/map_screen.dart';
 import '../tools/tools_screen.dart';
 import '../profile/profile_screen.dart';
-import '../books/book_detail_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -18,12 +18,12 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
-  bool _sensorsAvailable = false;
   
   final List<Widget> _pages = [
     const HomeScreen(),
     const SearchScreen(),
     const FavoritesScreen(),
+    const MapScreen(), // Added map screen
     const ToolsScreen(),
     const ProfileScreen(),
   ];
@@ -35,105 +35,39 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   void _initializeSensors() async {
-    try {
-      debugPrint('Initializing sensors...');
-      
-      // Initialize sensor service for shake detection
-      final sensorService = SensorService.instance;
-      
-      // Check if sensors are available
-      final sensorsAvailable = await sensorService.areSensorsAvailable();
-      debugPrint('Sensors available: $sensorsAvailable');
-      
-      setState(() {
-        _sensorsAvailable = sensorsAvailable;
+    // Initialize sensor service for shake detection
+    final sensorService = SensorService.instance;
+    
+    // Check if sensors are available
+    final sensorsAvailable = await sensorService.areSensorsAvailable();
+    if (sensorsAvailable) {
+      // Set shake callback
+      sensorService.setShakeCallback(() {
+        _onShakeDetected();
       });
       
-      if (sensorsAvailable) {
-        // Set shake callback
-        sensorService.setShakeCallback(() {
-          debugPrint('Shake detected in main navigation!');
-          _onShakeDetected();
-        });
-        
-        // Start listening to accelerometer
-        sensorService.startAccelerometerListening();
-        debugPrint('Started accelerometer listening');
-        
-        // Show success message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Shake detection enabled! Shake your phone for book suggestions.'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      } else {
-        debugPrint('Sensors not available on this device');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Shake detection not available on this device'),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('Error initializing sensors: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error initializing shake detection: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      // Start listening to accelerometer
+      sensorService.startAccelerometerListening();
     }
   }
 
   void _onShakeDetected() async {
-    try {
-      debugPrint('Processing shake detection...');
-      
-      // Show notification
-      await NotificationService.instance.showShakeDetectedNotification();
-      
-      // Show random book suggestions
-      _showRandomBookSuggestions();
-      
-    } catch (e) {
-      debugPrint('Error in shake detection handler: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error processing shake: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+    // Show notification
+    await NotificationService.instance.showShakeDetectedNotification();
+    
+    // Show random book suggestions
+    _showRandomBookSuggestions();
   }
 
   void _showRandomBookSuggestions() async {
     try {
-      debugPrint('Fetching random book suggestions...');
-      
-      final categories = ['fiction', 'mystery', 'romance', 'science', 'history', 'biography', 'fantasy'];
+      final categories = ['fiction', 'mystery', 'romance', 'science', 'history'];
       final randomCategory = categories[DateTime.now().millisecond % categories.length];
-      
-      debugPrint('Selected category: $randomCategory');
       
       final books = await BooksApiService.searchBooksByCategory(
         category: randomCategory,
-        maxResults: 5,
+        maxResults: 3,
       );
-
-      debugPrint('Found ${books.length} books');
 
       if (mounted && books.isNotEmpty) {
         showModalBottomSheet(
@@ -152,15 +86,12 @@ class _MainNavigationState extends State<MainNavigation> {
                   children: [
                     Icon(Icons.shuffle, color: Colors.indigo[800]),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Shake Suggestions',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.indigo[800],
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                    Text(
+                      'Shake Suggestions',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.indigo[800],
                       ),
                     ),
                   ],
@@ -174,107 +105,50 @@ class _MainNavigationState extends State<MainNavigation> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    itemCount: books.take(3).length,
-                    itemBuilder: (context, index) {
-                      final book = books[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: book.thumbnail != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: Image.network(
-                                    book.thumbnail!,
-                                    width: 40,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => 
-                                        const Icon(Icons.book),
-                                  ),
-                                )
-                              : const Icon(Icons.book),
-                          title: Text(
-                            book.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14),
+                ...books.take(3).map((book) => ListTile(
+                  leading: book.thumbnail != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: Image.network(
+                            book.thumbnail!,
+                            width: 40,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => 
+                                const Icon(Icons.book),
                           ),
-                          subtitle: Text(
-                            book.authorsString,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => BookDetailScreen(book: book),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
+                        )
+                      : const Icon(Icons.book),
+                  title: Text(
+                    book.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 14),
                   ),
-                ),
+                  subtitle: Text(
+                    book.authorsString,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Navigate to book details
+                  },
+                )).toList(),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Close'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showRandomBookSuggestions(); // Get new suggestions
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo[800],
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text('More'),
-                      ),
-                    ),
-                  ],
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
                 ),
               ],
             ),
           ),
         );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No book suggestions found. Try again!'),
-            backgroundColor: Colors.orange,
-          ),
-        );
       }
     } catch (e) {
       debugPrint('Error showing random suggestions: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading suggestions: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
-  }
-
-  // Manual test button for shake functionality
-  void _testShakeFunction() {
-    debugPrint('Manual shake test triggered');
-    _onShakeDetected();
   }
 
   @override
@@ -332,6 +206,11 @@ class _MainNavigationState extends State<MainNavigation> {
               label: 'Favorites',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.map_outlined),
+              activeIcon: Icon(Icons.map),
+              label: 'Map',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.build_outlined),
               activeIcon: Icon(Icons.build),
               label: 'Tools',
@@ -344,34 +223,15 @@ class _MainNavigationState extends State<MainNavigation> {
           ],
         ),
       ),
-      floatingActionButton: _currentIndex == 0 
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Test shake button (for debugging)
-                if (!_sensorsAvailable)
-                  FloatingActionButton(
-                    onPressed: _testShakeFunction,
-                    backgroundColor: Colors.orange,
-                    heroTag: "test_shake",
-                    mini: true,
-                    child: const Icon(Icons.shuffle, color: Colors.white),
-                  ),
-                if (!_sensorsAvailable) const SizedBox(height: 8),
-                // Search button
-                FloatingActionButton(
-                  onPressed: () {
-                    setState(() {
-                      _currentIndex = 1; // Go to search
-                    });
-                  },
-                  backgroundColor: Colors.indigo[800],
-                  heroTag: "search",
-                  child: const Icon(Icons.search, color: Colors.white),
-                ),
-              ],
-            ) 
-          : null,
+      floatingActionButton: _currentIndex == 0 ? FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _currentIndex = 1; // Go to search
+          });
+        },
+        backgroundColor: Colors.indigo[800],
+        child: const Icon(Icons.search, color: Colors.white),
+      ) : null,
     );
   }
 }

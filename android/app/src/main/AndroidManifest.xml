@@ -3,6 +3,9 @@
         android:label="book_app_v2"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+         <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBD7khB3Zvf5LaIh0iWMc_Xn-oXVEo1kCM"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -60,5 +63,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
 </manifest>

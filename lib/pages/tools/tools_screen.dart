@@ -577,30 +577,18 @@ class _TimeZoneConverterTabState extends State<TimeZoneConverterTab> {
                     items: timezones.map((timezone) {
                       return DropdownMenuItem(
                         value: timezone,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Flexible(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 timezone,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13,
-                                ),
+                                style: const TextStyle(fontWeight: FontWeight.w500),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
-                              Text(
-                                TimezoneService.getTimezoneName(timezone),
-                                style: const TextStyle(
-                                  fontSize: 9,
-                                  color: Colors.grey,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
+                              
                             ],
                           ),
                         ),
@@ -629,8 +617,7 @@ class _TimeZoneConverterTabState extends State<TimeZoneConverterTab> {
                     items: timezones.map((timezone) {
                       return DropdownMenuItem(
                         value: timezone,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Flexible(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -639,20 +626,11 @@ class _TimeZoneConverterTabState extends State<TimeZoneConverterTab> {
                                 timezone,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 13,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
-                              Text(
-                                TimezoneService.getTimezoneName(timezone),
-                                style: const TextStyle(
-                                  fontSize: 9,
-                                  color: Colors.grey,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
+                              
                             ],
                           ),
                         ),

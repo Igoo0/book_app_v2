@@ -13,8 +13,8 @@ class SensorService {
   StreamSubscription<UserAccelerometerEvent>? _userAccelerometerSubscription;
 
   // Shake detection variables - Made more sensitive
-  static const double _shakeThreshold = 8.0; // Reduced from 12.0 to 8.0
-  static const int _shakeDuration = 800; // Reduced from 1000ms to 800ms
+  static const double _shakeThreshold = 15.0; 
+  static const int _shakeDuration = 1000;
   DateTime? _lastShakeTime;
   
   // Callbacks

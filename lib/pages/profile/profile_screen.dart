@@ -475,9 +475,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     CustomScrollView(
                       slivers: [
-                        // Profile header
+                        // Profile header - FIXED OVERFLOW ISSUES
                         SliverAppBar(
-                          expandedHeight: 195,
+                          expandedHeight: 220, // Increased height to prevent overflow
                           pinned: true,
                           backgroundColor: Colors.indigo[800],
                           flexibleSpace: FlexibleSpaceBar(
@@ -493,89 +493,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               child: SafeArea(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(height: 60),
-                                    // Profile image
-                                    Stack(
-                                      children: [
-                                        Container(
-                                          width: 80,
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(color: Colors.white, width: 3),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(0.2),
-                                                blurRadius: 10,
-                                                offset: const Offset(0, 5),
-                                              ),
-                                            ],
-                                          ),
-                                          child: ClipOval(
-                                            child: _currentUser!.profileImage != null && 
-                                                   File(_currentUser!.profileImage!).existsSync()
-                                                ? Image.file(
-                                                    File(_currentUser!.profileImage!),
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : Container(
-                                                    color: Colors.white,
-                                                    child: Icon(
-                                                      Icons.person,
-                                                      size: 40,
-                                                      color: Colors.indigo[800],
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20), // Added horizontal padding
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(height: 50), // Reduced top spacing
+                                      // Profile image
+                                      Stack(
+                                        children: [
+                                          Container(
+                                            width: 80,
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Colors.white, width: 3),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.2),
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 5),
+                                                ),
+                                              ],
+                                            ),
+                                            child: ClipOval(
+                                              child: _currentUser!.profileImage != null && 
+                                                     File(_currentUser!.profileImage!).existsSync()
+                                                  ? Image.file(
+                                                      File(_currentUser!.profileImage!),
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                  : Container(
+                                                      color: Colors.white,
+                                                      child: Icon(
+                                                        Icons.person,
+                                                        size: 40,
+                                                        color: Colors.indigo[800],
+                                                      ),
                                                     ),
-                                                  ),
+                                            ),
                                           ),
-                                        ),
-                                        Positioned(
-                                          bottom: 0,
-                                          right: 0,
-                                          child: GestureDetector(
-                                            onTap: _isLoading ? null : _pickProfileImage,
-                                            child: Container(
-                                              width: 24,
-                                              height: 24,
-                                              decoration: BoxDecoration(
-                                                color: _isLoading ? Colors.grey : Colors.white,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Icon(
-                                                Icons.camera_alt,
-                                                size: 16,
-                                                color: Colors.indigo[800],
+                                          Positioned(
+                                            bottom: 0,
+                                            right: 0,
+                                            child: GestureDetector(
+                                              onTap: _isLoading ? null : _pickProfileImage,
+                                              child: Container(
+                                                width: 24,
+                                                height: 24,
+                                                decoration: BoxDecoration(
+                                                  color: _isLoading ? Colors.grey : Colors.white,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  Icons.camera_alt,
+                                                  size: 16,
+                                                  color: Colors.indigo[800],
+                                                ),
                                               ),
                                             ),
                                           ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16), // Increased spacing
+                                      
+                                      // Username - FIXED WITH PROPER CONSTRAINTS
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          _currentUser!.username,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16, // Reduced font size
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          textAlign: TextAlign.center,
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      _currentUser!.username,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
                                       ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Text(
-                                      _currentUser!.email,
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.9),
-                                        fontSize: 12,
+                                      
+                                      const SizedBox(height: 4), // Added small spacing
+                                      
+                                      // Email - FIXED WITH PROPER CONSTRAINTS
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          _currentUser!.email,
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(0.9),
+                                            fontSize: 11, // Slightly reduced font size
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
