@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/currency_service.dart';
 import '../../services/timezone_service.dart';
 import '../../services/sensor_service.dart';
+import '../../services/notification_service.dart';
 
 class ToolsScreen extends StatefulWidget {
   const ToolsScreen({super.key});
@@ -17,7 +18,7 @@ class _ToolsScreenState extends State<ToolsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this); // Changed to 4 tabs
   }
 
   @override
@@ -40,6 +41,7 @@ class _ToolsScreenState extends State<ToolsScreen>
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
+          isScrollable: true, // Make tabs scrollable
           tabs: const [
             Tab(
               icon: Icon(Icons.currency_exchange),
@@ -53,6 +55,10 @@ class _ToolsScreenState extends State<ToolsScreen>
               icon: Icon(Icons.sensors),
               text: 'Sensors',
             ),
+            // Tab(
+            //   icon: Icon(Icons.notifications),
+            //   text: 'Notifications',
+            // ),
           ],
         ),
       ),
@@ -62,12 +68,541 @@ class _ToolsScreenState extends State<ToolsScreen>
           CurrencyConverterTab(),
           TimeZoneConverterTab(),
           SensorInfoTab(),
+          // NotificationTestTab(), // New tab
         ],
       ),
     );
   }
 }
 
+// // New Notification Test Tab
+// class NotificationTestTab extends StatefulWidget {
+//   const NotificationTestTab({super.key});
+
+//   @override
+//   State<NotificationTestTab> createState() => _NotificationTestTabState();
+// }
+
+// class _NotificationTestTabState extends State<NotificationTestTab> {
+//   bool _isLoading = false;
+
+//   Future<void> _showTestNotification(String type) async {
+//     setState(() {
+//       _isLoading = true;
+//     });
+
+//     try {
+//       switch (type) {
+//         case 'welcome':
+//           await NotificationService.instance.showWelcomeNotification(
+//             username: 'Test User',
+//           );
+//           break;
+//         case 'book_recommendation':
+//           await NotificationService.instance.showBookRecommendationNotification(
+//             bookTitle: 'The Great Gatsby',
+//             author: 'F. Scott Fitzgerald',
+//             bookId: 'test_book_123',
+//           );
+//           break;
+//         case 'new_book':
+//           await NotificationService.instance.showNewBookAlert(
+//             bookTitle: 'Flutter in Action',
+//             category: 'Programming',
+//             bookId: 'flutter_book_456',
+//           );
+//           break;
+//         case 'search_result':
+//           await NotificationService.instance.showSearchResultNotification(
+//             resultCount: 42,
+//             query: 'science fiction',
+//           );
+//           break;
+//         case 'favorite_added':
+//           await NotificationService.instance.showFavoriteAddedNotification(
+//             bookTitle: 'Dune',
+//           );
+//           break;
+//         case 'daily_reminder':
+//           await NotificationService.instance.showDailyReadingReminder();
+//           break;
+//         case 'currency_update':
+//           await NotificationService.instance.showCurrencyUpdateNotification();
+//           break;
+//         case 'shake_detected':
+//           await NotificationService.instance.showShakeDetectedNotification();
+//           break;
+//         case 'progress':
+//           await NotificationService.instance.showProgressNotification(
+//             title: 'Downloading Book',
+//             body: 'Download in progress...',
+//             progress: 75,
+//             maxProgress: 100,
+//           );
+//           break;
+//         case 'big_text':
+//           await NotificationService.instance.showBigTextNotification(
+//             title: 'Book Review',
+//             shortBody: 'New review available',
+//             longBody: 'This is a comprehensive review of the latest bestseller. The author has done an excellent job crafting characters and building a compelling narrative that keeps readers engaged from start to finish. The plot development is masterful and the writing style is both accessible and sophisticated.',
+//           );
+//           break;
+//         case 'custom':
+//           await NotificationService.instance.showNotification(
+//             title: 'Custom Test Notification',
+//             body: 'This is a custom notification for testing purposes!',
+//             payload: 'custom_test',
+//           );
+//           break;
+//       }
+
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('$type notification sent!'),
+//             backgroundColor: Colors.green,
+//             duration: const Duration(seconds: 2),
+//           ),
+//         );
+//       }
+//     } catch (e) {
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Error sending notification: $e'),
+//             backgroundColor: Colors.red,
+//             duration: const Duration(seconds: 3),
+//           ),
+//         );
+//       }
+//     } finally {
+//       if (mounted) {
+//         setState(() {
+//           _isLoading = false;
+//         });
+//       }
+//     }
+//   }
+
+//   Future<void> _requestPermissions() async {
+//     setState(() {
+//       _isLoading = true;
+//     });
+
+//     try {
+//       await NotificationService.instance.requestPermissions();
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             content: Text('Notification permissions requested!'),
+//             backgroundColor: Colors.blue,
+//             duration: Duration(seconds: 2),
+//           ),
+//         );
+//       }
+//     } catch (e) {
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Error requesting permissions: $e'),
+//             backgroundColor: Colors.red,
+//             duration: const Duration(seconds: 3),
+//           ),
+//         );
+//       }
+//     } finally {
+//       if (mounted) {
+//         setState(() {
+//           _isLoading = false;
+//         });
+//       }
+//     }
+//   }
+
+//   Future<void> _scheduleWeeklyNotification() async {
+//     setState(() {
+//       _isLoading = true;
+//     });
+
+//     try {
+//       await NotificationService.instance.scheduleWeeklyRecommendation();
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             content: Text('Weekly notification scheduled!'),
+//             backgroundColor: Colors.green,
+//             duration: Duration(seconds: 2),
+//           ),
+//         );
+//       }
+//     } catch (e) {
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Error scheduling notification: $e'),
+//             backgroundColor: Colors.red,
+//             duration: const Duration(seconds: 3),
+//           ),
+//         );
+//       }
+//     } finally {
+//       if (mounted) {
+//         setState(() {
+//           _isLoading = false;
+//         });
+//       }
+//     }
+//   }
+
+//   Future<void> _cancelAllNotifications() async {
+//     setState(() {
+//       _isLoading = true;
+//     });
+
+//     try {
+//       await NotificationService.instance.cancelAllNotifications();
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             content: Text('All notifications cancelled!'),
+//             backgroundColor: Colors.orange,
+//             duration: Duration(seconds: 2),
+//           ),
+//         );
+//       }
+//     } catch (e) {
+//       if (mounted) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Error cancelling notifications: $e'),
+//             backgroundColor: Colors.red,
+//             duration: const Duration(seconds: 3),
+//           ),
+//         );
+//       }
+//     } finally {
+//       if (mounted) {
+//         setState(() {
+//           _isLoading = false;
+//         });
+//       }
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SingleChildScrollView(
+//       padding: const EdgeInsets.all(16),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           // Header
+//           Card(
+//             elevation: 4,
+//             child: Padding(
+//               padding: const EdgeInsets.all(20),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Row(
+//                     children: [
+//                       Icon(Icons.notifications, color: Colors.indigo[800]),
+//                       const SizedBox(width: 8),
+//                       Expanded(
+//                         child: Text(
+//                           'Notification Testing',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             fontWeight: FontWeight.bold,
+//                             color: Colors.indigo[800],
+//                           ),
+//                           overflow: TextOverflow.ellipsis,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                   const SizedBox(height: 8),
+//                   const Text(
+//                     'Test different types of notifications to ensure they work properly.',
+//                     style: TextStyle(fontSize: 14, color: Colors.grey),
+//                   ),
+//                   const SizedBox(height: 16),
+                  
+//                   // Permission and control buttons
+//                   Wrap(
+//                     spacing: 8,
+//                     runSpacing: 8,
+//                     children: [
+//                       ElevatedButton.icon(
+//                         onPressed: _isLoading ? null : _requestPermissions,
+//                         icon: const Icon(Icons.security, size: 16),
+//                         label: const Text('Request Permissions'),
+//                         style: ElevatedButton.styleFrom(
+//                           backgroundColor: Colors.blue,
+//                           foregroundColor: Colors.white,
+//                         ),
+//                       ),
+//                       ElevatedButton.icon(
+//                         onPressed: _isLoading ? null : _scheduleWeeklyNotification,
+//                         icon: const Icon(Icons.schedule, size: 16),
+//                         label: const Text('Schedule Weekly'),
+//                         style: ElevatedButton.styleFrom(
+//                           backgroundColor: Colors.green,
+//                           foregroundColor: Colors.white,
+//                         ),
+//                       ),
+//                       ElevatedButton.icon(
+//                         onPressed: _isLoading ? null : _cancelAllNotifications,
+//                         icon: const Icon(Icons.clear_all, size: 16),
+//                         label: const Text('Cancel All'),
+//                         style: ElevatedButton.styleFrom(
+//                           backgroundColor: Colors.red,
+//                           foregroundColor: Colors.white,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+
+//           const SizedBox(height: 16),
+
+//           // Basic Notifications
+//           Card(
+//             child: Padding(
+//               padding: const EdgeInsets.all(16),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(
+//                     'Basic Notifications',
+//                     style: TextStyle(
+//                       fontSize: 16,
+//                       fontWeight: FontWeight.bold,
+//                       color: Colors.indigo[800],
+//                     ),
+//                   ),
+//                   const SizedBox(height: 12),
+//                   _buildNotificationButton(
+//                     'Welcome Notification',
+//                     'Test welcome message for new users',
+//                     Icons.waving_hand,
+//                     Colors.green,
+//                     () => _showTestNotification('welcome'),
+//                   ),
+//                   _buildNotificationButton(
+//                     'Custom Notification',
+//                     'Basic custom notification test',
+//                     Icons.notification_add,
+//                     Colors.blue,
+//                     () => _showTestNotification('custom'),
+//                   ),
+//                   _buildNotificationButton(
+//                     'Daily Reading Reminder',
+//                     'Encourage users to read daily',
+//                     Icons.menu_book,
+//                     Colors.orange,
+//                     () => _showTestNotification('daily_reminder'),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+
+//           const SizedBox(height: 16),
+
+//           // Book-Related Notifications
+//           Card(
+//             child: Padding(
+//               padding: const EdgeInsets.all(16),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(
+//                     'Book-Related Notifications',
+//                     style: TextStyle(
+//                       fontSize: 16,
+//                       fontWeight: FontWeight.bold,
+//                       color: Colors.indigo[800],
+//                     ),
+//                   ),
+//                   const SizedBox(height: 12),
+//                   _buildNotificationButton(
+//                     'Book Recommendation',
+//                     'Suggest a new book to user',
+//                     Icons.recommend,
+//                     Colors.purple,
+//                     () => _showTestNotification('book_recommendation'),
+//                   ),
+//                   _buildNotificationButton(
+//                     'New Book Alert',
+//                     'Notify about new releases',
+//                     Icons.new_releases,
+//                     Colors.red,
+//                     () => _showTestNotification('new_book'),
+//                   ),
+//                   _buildNotificationButton(
+//                     'Favorite Added',
+//                     'Confirm book added to favorites',
+//                     Icons.favorite,
+//                     Colors.pink,
+//                     () => _showTestNotification('favorite_added'),
+//                   ),
+//                   _buildNotificationButton(
+//                     'Search Results',
+//                     'Show search completion',
+//                     Icons.search,
+//                     Colors.teal,
+//                     () => _showTestNotification('search_result'),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+
+//           const SizedBox(height: 16),
+
+//           // App Feature Notifications
+//           Card(
+//             child: Padding(
+//               padding: const EdgeInsets.all(16),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(
+//                     'App Feature Notifications',
+//                     style: TextStyle(
+//                       fontSize: 16,
+//                       fontWeight: FontWeight.bold,
+//                       color: Colors.indigo[800],
+//                     ),
+//                   ),
+//                   const SizedBox(height: 12),
+//                   _buildNotificationButton(
+//                     'Shake Detected',
+//                     'Shake gesture recognition',
+//                     Icons.vibration,
+//                     Colors.amber,
+//                     () => _showTestNotification('shake_detected'),
+//                   ),
+//                   _buildNotificationButton(
+//                     'Currency Update',
+//                     'Exchange rates updated',
+//                     Icons.currency_exchange,
+//                     Colors.indigo,
+//                     () => _showTestNotification('currency_update'),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+
+//           const SizedBox(height: 16),
+
+//           // Advanced Notifications
+//           Card(
+//             child: Padding(
+//               padding: const EdgeInsets.all(16),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(
+//                     'Advanced Notifications',
+//                     style: TextStyle(
+//                       fontSize: 16,
+//                       fontWeight: FontWeight.bold,
+//                       color: Colors.indigo[800],
+//                     ),
+//                   ),
+//                   const SizedBox(height: 12),
+//                   _buildNotificationButton(
+//                     'Progress Notification',
+//                     'Show download progress',
+//                     Icons.download,
+//                     Colors.cyan,
+//                     () => _showTestNotification('progress'),
+//                   ),
+//                   _buildNotificationButton(
+//                     'Big Text Notification',
+//                     'Expandable text notification',
+//                     Icons.text_fields,
+//                     Colors.brown,
+//                     () => _showTestNotification('big_text'),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+
+//           const SizedBox(height: 20),
+
+//           // Loading indicator
+//           if (_isLoading)
+//             const Center(
+//               child: Column(
+//                 children: [
+//                   CircularProgressIndicator(),
+//                   SizedBox(height: 8),
+//                   Text('Sending notification...'),
+//                 ],
+//               ),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildNotificationButton(
+//     String title,
+//     String description,
+//     IconData icon,
+//     Color color,
+//     VoidCallback onPressed,
+//   ) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 8),
+//       child: ListTile(
+//         leading: Container(
+//           padding: const EdgeInsets.all(8),
+//           decoration: BoxDecoration(
+//             color: color.withOpacity(0.1),
+//             borderRadius: BorderRadius.circular(8),
+//           ),
+//           child: Icon(icon, color: color, size: 20),
+//         ),
+//         title: Text(
+//           title,
+//           style: const TextStyle(
+//             fontWeight: FontWeight.w600,
+//             fontSize: 14,
+//           ),
+//         ),
+//         subtitle: Text(
+//           description,
+//           style: const TextStyle(fontSize: 12),
+//         ),
+//         trailing: ElevatedButton(
+//           onPressed: _isLoading ? null : onPressed,
+//           style: ElevatedButton.styleFrom(
+//             backgroundColor: color,
+//             foregroundColor: Colors.white,
+//             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+//             minimumSize: const Size(60, 30),
+//           ),
+//           child: const Text(
+//             'Test',
+//             style: TextStyle(fontSize: 12),
+//           ),
+//         ),
+//         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+//       ),
+//     );
+//   }
+// }
+
+// // Keep the existing tabs as they were
 class CurrencyConverterTab extends StatefulWidget {
   const CurrencyConverterTab({super.key});
 
